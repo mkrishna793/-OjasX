@@ -240,6 +240,23 @@ Today, 3 billion people own devices with GPUs that can run AI. But only those wi
 - 🔬 **Researchers** can run experiments on whatever hardware their lab has
 - 🌐 **Governments** can build sovereign AI infrastructure without vendor lock-in
 - 🤖 **Edge devices** with ARM/Qualcomm chips can run local AI
+  
+  ### 🌱 For the Earth ###
+
+AI has an energy crisis no one talks about. A single NVIDIA A100 GPU consumes **400 watts** — training one large model can emit as much CO₂ as **five cars in their entire lifetime**.
+
+But here's what they don't tell you: most of that energy is wasted on hardware that was designed to render video game pixels, not multiply matrices. Meanwhile, chips built for efficiency already exist:
+
+- **ARM Mali GPUs** consume **2-5 watts** — running in billions of phones worldwide
+- **Intel Iris Xe** uses **15-25 watts** — already in your laptop
+- **Qualcomm Adreno** draws **3-8 watts** — powers every Android flagship
+
+These chips aren't as fast as a $40,000 NVIDIA H100. But they don't need to be. Not every AI task requires a nuclear reactor. A student training a model, a doctor running diagnostics, a farmer using crop analysis — they need **good enough** AI that runs on hardware that **doesn't burn the planet**.
+
+OjasX makes this possible. By unlocking AI on energy-efficient silicon, we're not just breaking a monopoly — **we're reducing the carbon cost of intelligence itself**.
+
+> *"The greenest GPU is the one already in your pocket."*
+
 
 ### The Roadmap
 
@@ -286,7 +303,7 @@ The AGPL specifically closes the "cloud loophole" that exists in the regular GPL
 
 #### 💼 Commercial Licensing (Dual License)
 
-If your company wants to use OjasX **without** open-sourcing your proprietary code, a **commercial license** is available. Contact: [mkrishna.16july@gmail.com](mailto:mkrishna.16july@gmail.com)
+If your company wants to use OjasX **without** open-sourcing your proprietary code, a **commercial license** is available. Contact: [mkrishna.16july@gmail.com](mailto:mkrishna.16july@gmail.com) and [mohanakrishnanannuru@gmail.com]_(mailto:mohanakrishnanannuru@gmail.com)
 
 This dual-licensing model ensures:
 1. **The technology stays free** for individuals and the open-source community
