@@ -1,6 +1,3 @@
-<p align="center">
-  <img src="assets/hero.png" alt="OjasX — The Vital Energy of Universal AI Compute" width="700"/>
-</p>
 
 <h1 align="center">⚡ O J A S X</h1>
 
