@@ -267,7 +267,6 @@ OjasX makes this possible. By unlocking AI on energy-efficient silicon, we're no
 | **V3** | `device="opencl"` syntax via PrivateUse1 C++ integration |
 | **V4** | Performance parity with CUDA on equivalent hardware |
 | **V5** | torch.compile full graph execution, multi-GPU support |
-| **V∞** | Ecosystem: Hugging Face integration, ONNX export, mobile SDK |
 
 ---
 
@@ -303,8 +302,7 @@ The AGPL specifically closes the "cloud loophole" that exists in the regular GPL
 
 #### 💼 Commercial Licensing (Dual License)
 
-If your company wants to use OjasX **without** open-sourcing your proprietary code, a **commercial license** is available. Contact: [mkrishna.16july@gmail.com](mailto:mkrishna.16july@gmail.com) and [mohanakrishnanannuru@gmail.com]_(mailto:mohanakrishnanannuru@gmail.com)
-
+If your company wants to use OjasX **without** open-sourcing your proprietary code, a **commercial license** is available. Contact: [mkrishna.16july@gmail.com](mailto:mkrishna.16july@gmail.com) and [mohanakrishnanannuru@gmail.com]
 This dual-licensing model ensures:
 1. **The technology stays free** for individuals and the open-source community
 2. **Corporations must contribute back** if they use the free version
