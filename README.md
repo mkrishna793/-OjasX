@@ -71,25 +71,25 @@ OjasX is built as a layered engine. Each layer has a single responsibility:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    YOUR PYTHON CODE                      │
+│                    YOUR PYTHON CODE                     │
 │              x = torchcl.matmul(a, b)                   │
 ├─────────────────────────────────────────────────────────┤
-│                    PUBLIC API (api.py)                    │
+│                    PUBLIC API (api.py)                  │
 │         40+ operations: add, matmul, relu, softmax...   │
 ├─────────────────────────────────────────────────────────┤
-│                 COMPUTE ENGINE (engine.py)                │
-│       Converts PyTorch tensors ↔ OpenCL GPU buffers      │
-│              Launches kernels with optimal sizing         │
+│                 COMPUTE ENGINE (engine.py)              │
+│       Converts PyTorch tensors ↔ OpenCL GPU buffers     │
+│              Launches kernels with optimal sizing       │
 ├──────────────────────┬──────────────────────────────────┤
-│   JIT COMPILER       │      KERNEL REGISTRY              │
-│  Fuses multiple ops  │   Loads & caches compiled         │
-│  into single kernels │   .cl kernel programs             │
+│   JIT COMPILER       │      KERNEL REGISTRY             │
+│  Fuses multiple ops  │   Loads & caches compiled        │
+│  into single kernels │   .cl kernel programs            │
 ├──────────────────────┴──────────────────────────────────┤
-│              OPENCL RUNTIME (context.py + memory.py)      │
-│    Platform discovery │ Buffer pool │ CPU↔GPU transfers   │
+│              OPENCL RUNTIME (context.py + memory.py)    │
+│    Platform discovery │ Buffer pool │ CPU↔GPU transfers │
 ├─────────────────────────────────────────────────────────┤
-│                   ANY OPENCL DEVICE                       │
-│        AMD │ Intel │ Qualcomm │ ARM │ NVIDIA │ FPGA      │
+│                   ANY OPENCL DEVICE                     │
+│        AMD │ Intel │ Qualcomm │ ARM │ NVIDIA │ FPGA     │
 └─────────────────────────────────────────────────────────┘
 ```
 
