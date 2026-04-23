@@ -1,0 +1,105 @@
+// ═══════════════════════════════════════════════════════════════════
+// TorchCL — Matrix Multiplication Kernels
+// Naive version + Tiled version (uses local memory for speed)
+// ═══════════════════════════════════════════════════════════════════
+
+// ── Naive matmul: C[M,N] = A[M,K] × B[K,N] ────────────────────────
+__kernel void matmul_naive_f32(__global const float* A,
+                               __global const float* B,
+                               __global float* C,
+                               const int M,
+                               const int N,
+                               const int K) {
+    int row = get_global_id(0);  // M dimension
+    int col = get_global_id(1);  // N dimension
+
+    if (row < M && col < N) {
+        float sum = 0.0f;
+        for (int k = 0; k < K; k++) {
+            sum += A[row * K + k] * B[k * N + col];
+        }
+        C[row * N + col] = sum;
+    }
+}
+
+// ── Tiled matmul: uses local memory for much better performance ─────
+// TILE_SIZE is defined at compile time via -DTILE_SIZE=16
+#ifndef TILE_SIZE
+#define TILE_SIZE 16
+#endif
+
+__kernel void matmul_tiled_f32(__global const float* A,
+                               __global const float* B,
+                               __global float* C,
+                               const int M,
+                               const int N,
+                               const int K) {
+    // Local memory tiles
+    __local float tileA[TILE_SIZE][TILE_SIZE];
+    __local float tileB[TILE_SIZE][TILE_SIZE];
+
+    int row = get_global_id(0);
+    int col = get_global_id(1);
+    int localRow = get_local_id(0);
+    int localCol = get_local_id(1);
+
+    float sum = 0.0f;
+    int numTiles = (K + TILE_SIZE - 1) / TILE_SIZE;
+
+    for (int t = 0; t < numTiles; t++) {
+        // Load tiles into local memory
+        int tiledK_A = t * TILE_SIZE + localCol;
+        int tiledK_B = t * TILE_SIZE + localRow;
+
+        tileA[localRow][localCol] = (row < M && tiledK_A < K)
+            ? A[row * K + tiledK_A] : 0.0f;
+
+        tileB[localRow][localCol] = (tiledK_B < K && col < N)
+            ? B[tiledK_B * N + col] : 0.0f;
+
+        barrier(CLK_LOCAL_MEM_FENCE);
+
+        // Compute partial dot product from this tile
+        for (int k = 0; k < TILE_SIZE; k++) {
+            sum += tileA[localRow][k] * tileB[k][localCol];
+        }
+
+        barrier(CLK_LOCAL_MEM_FENCE);
+    }
+
+    if (row < M && col < N) {
+        C[row * N + col] = sum;
+    }
+}
+
+// ── Matrix + bias: C = A @ B + bias ─────────────────────────────────
+__kernel void matmul_bias_f32(__global const float* A,
+                              __global const float* B,
+                              __global const float* bias,
+                              __global float* C,
+                              const int M,
+                              const int N,
+                              const int K) {
+    int row = get_global_id(0);
+    int col = get_global_id(1);
+
+    if (row < M && col < N) {
+        float sum = 0.0f;
+        for (int k = 0; k < K; k++) {
+            sum += A[row * K + k] * B[k * N + col];
+        }
+        C[row * N + col] = sum + bias[col];
+    }
+}
+
+// ── Transpose: B[N,M] = A[M,N]^T ───────────────────────────────────
+__kernel void transpose_f32(__global const float* A,
+                            __global float* B,
+                            const int M,
+                            const int N) {
+    int row = get_global_id(0);
+    int col = get_global_id(1);
+    if (row < M && col < N) {
+        B[col * M + row] = A[row * N + col];
+    }
+}
