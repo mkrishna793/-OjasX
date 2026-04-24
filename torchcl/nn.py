@@ -80,18 +80,21 @@ class Conv2d(nn.Module):
         im2col_k = reg.get_kernel("conv.cl", "im2col_f32")
         col_size = C * kH * kW * outH * outW
 
+        # Pre-allocate buffers for batch processing
+        img_buf = pool.allocate(C * H * W * 4)
+        col_buf = pool.allocate(col_size * 4)
+        out_buf = pool.allocate(self.out_ch * outH * outW * 4)
+        gs = (engine._compute_global_size(col_size),)
+
         outputs = []
         for b in range(B):
-            img_buf = engine.tensor_to_buffer(x_cpu[b].contiguous())
-            col_buf = pool.allocate(col_size * 4)
-            gs = (engine._compute_global_size(col_size),)
+            pool.host_to_device(x_cpu[b].contiguous().numpy(), cl_buf=img_buf)
             im2col_k(queue, gs, None, img_buf.buffer, col_buf.buffer,
                       np.int32(C), np.int32(H), np.int32(W),
                       np.int32(kH), np.int32(kW), np.int32(pH), np.int32(pW),
                       np.int32(sH), np.int32(sW), np.int32(outH), np.int32(outW))
 
             w_buf = torchcl.api._get_buf(self.weight)
-            out_buf = pool.allocate(self.out_ch * outH * outW * 4)
             engine.run_matmul(w_buf, col_buf, out_buf, self.out_ch, outH * outW, C * kH * kW)
 
             if self.bias is not None:
@@ -103,8 +106,8 @@ class Conv2d(nn.Module):
 
             r = pool.device_to_host(out_buf, np.float32, (self.out_ch, outH, outW))
             outputs.append(torch.from_numpy(r.copy()))
-            pool.free(col_buf); pool.free(out_buf); pool.free(img_buf)
 
+        pool.free(img_buf); pool.free(col_buf); pool.free(out_buf)
         return to_opencl(torch.stack(outputs))
 
     def parameters(self):
@@ -131,19 +134,26 @@ class MaxPool2d(nn.Module):
         pool = get_buffer_pool()
         queue = get_queue()
         mpk = get_kernel_registry().get_kernel("conv.cl", "maxpool2d_f32")
+        sz = C * outH * outW
+        gs = (engine._compute_global_size(sz),)
+
+        # Pre-allocate buffers for batch processing
+        ib = pool.allocate(C * H * W * 4)
+        ob = pool.allocate(sz * 4)
+        xb = pool.allocate(sz * 4)
+
         outputs = []
         for b in range(B):
-            ib = engine.tensor_to_buffer(x_cpu[b].contiguous())
-            sz = C * outH * outW
-            ob = pool.allocate(sz * 4); xb = pool.allocate(sz * 4)
-            mpk(queue, (engine._compute_global_size(sz),), None,
+            pool.host_to_device(x_cpu[b].contiguous().numpy(), cl_buf=ib)
+            mpk(queue, gs, None,
                 ib.buffer, ob.buffer, xb.buffer,
                 np.int32(C), np.int32(H), np.int32(W),
                 np.int32(kH), np.int32(kW), np.int32(sH), np.int32(sW),
                 np.int32(outH), np.int32(outW))
             r = pool.device_to_host(ob, np.float32, (C, outH, outW))
             outputs.append(torch.from_numpy(r.copy()))
-            pool.free(ib); pool.free(ob); pool.free(xb)
+
+        pool.free(ib); pool.free(ob); pool.free(xb)
         return to_opencl(torch.stack(outputs))
 
     def parameters(self): return []
