@@ -85,6 +85,13 @@ except Exception as e:
     print(f"[TorchCL] FAILED - Could not initialize OpenCL: {e}")
     print("[TorchCL]   Falling back to CPU-only mode.")
 
+# V3 Native Integration
+try:
+    from torchcl.tensor import apply_monkeypatches
+    apply_monkeypatches()
+except Exception as e:
+    print(f"[TorchCL] V3 Native Integration Failed: {e}")
+
 __all__ = [
     # Info
     "get_device_info",
